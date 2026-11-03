@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Daily DevOps — Time Core & Crédito · Confederação Sicredi" />
+  <meta name="theme-color" content="#0F1B16" id="js-theme-color" />
+  <title>Daily Core & Crédito — Sicredi</title>
+
+  <!-- Aplica a preferência antes do primeiro paint para evitar o flash
+       do tema escuro ao abrir a página em outro tema. -->
+  <script>
+    (function () {
+      try {
+        var tema = localStorage.getItem('sicredi-daily-theme-v8')
+                || localStorage.getItem('sicredi-daily-theme-v7');
+        if (['dark', 'light', 'cooperative'].indexOf(tema) !== -1) {
+          document.documentElement.setAttribute('data-theme', tema);
+          document.documentElement.style.colorScheme = tema === 'dark' ? 'dark' : 'light';
+        }
+      } catch (_) {}
+    })();
+  </script>
+
+  <!-- Favicon institucional (SVG inline — hexágono cooperativo + nós de rede) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230F1B16'/%3E%3Cpath d='M16 4 L27 10 V22 L16 28 L5 22 V10 Z' fill='none' stroke='%23259A6C' stroke-width='2'/%3E%3Cpath d='M16 10 L10 20 M16 10 L22 20 M10 20 L22 20' stroke='%23628878' stroke-width='1.2'/%3E%3Ccircle cx='16' cy='10' r='2.4' fill='%233FB585'/%3E%3Ccircle cx='10' cy='20' r='2.4' fill='%23357F82'/%3E%3Ccircle cx='22' cy='20' r='2.4' fill='%23BB9748'/%3E%3C/svg%3E" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/trimestral.css" />
+</head>
+<body>
+
+  <!-- BG DECORATION (camadas estáticas e discretas — ver css/style.css) -->
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow--1" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow--2" aria-hidden="true"></div>
+
+  <!-- Fundo vivo do tema Cooperativo: cata-ventos vetoriais em CSS,
+       sem imagens externas e com respeito a prefers-reduced-motion. -->
+  <div class="cooperative-wind-bg" aria-hidden="true">
+    <div class="wind-orbit wind-orbit--1">
+      <div class="pinwheel pinwheel--green">
+        <span class="pinwheel-blade"></span><span class="pinwheel-blade"></span>
+        <span class="pinwheel-blade"></span><span class="pinwheel-blade"></span>
+        <span class="pinwheel-hub"></span>
+      </div>
+    </div>
+    <div class="wind-orbit wind-orbit--2">
+      <div class="pinwheel pinwheel--light pinwheel--reverse">
+        <span class="pinwheel-blade"></span><span class="pinwheel-blade"></span>
+        <span class="pinwheel-blade"></span><span class="pinwheel-blade"></span>
+        <span class="pinwheel-hub"></span>
+      </div>
+    </div>
+    <div class="wind-orbit wind-orbit--3">
+      <div class="pinwheel pinwheel--dark">
+        <span class="pinwheel-blade"></span><span class="pinwheel-blade"></span>
+        <span class="pinwheel-blade"></span><span class="pinwheel-blade"></span>
+        <span class="pinwheel-hub"></span>
+      </div>
+    </div>
+    <div class="wind-orbit wind-orbit--4">
+      <div class="pinwheel pinwheel--accent pinwheel--reverse">
+        <span class="pinwheel-blade"></span><span class="pinwheel-blade"></span>
+        <span class="pinwheel-blade"></span><span class="pinwheel-blade"></span>
+        <span class="pinwheel-hub"></span>
+      </div>
+    </div>
+    <div class="wind-orbit wind-orbit--5">
+      <div class="pinwheel pinwheel--green">
+        <span class="pinwheel-blade"></span><span class="pinwheel-blade"></span>
+        <span class="pinwheel-blade"></span><span class="pinwheel-blade"></span>
+        <span class="pinwheel-hub"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navegação entre as interfaces (funciona no GitHub Pages e no iPhone) -->
+  <nav class="app-navigation" aria-label="Páginas do acompanhamento">
+    <a href="./index.html" class="app-nav-link is-active" aria-current="page"><i class="fa-solid fa-calendar-check"></i> Agenda de Dailies</a>
+    <a href="./entrega-trimestral.html" class="app-nav-link" data-app-nav><i class="fa-solid fa-layer-group"></i> Entrega Trimestral</a>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════
+       HEADER
+  ═══════════════════════════════════════════ -->
+  <header class="site-header" id="site-header">
+    <div class="header-inner">
+
+      <!-- Logo (opcional — adicione assets/img/logo.png; some sem erro se ausente) -->
+      <div class="header-logo-wrap">
+        <img
+          src="assets/img/logo.png"
+          alt="Sicredi"
+          class="header-logo"
+          id="js-logo"
+          onerror="this.style.display='none'"
+        />
+      </div>
+      <script>
+        // Remove o fundo branco/quase-branco da logo.png via canvas,
+        // transformando esses pixels em transparentes de verdade. Só
+        // mudar a cor do cartão atrás da logo (CSS) não bastaria: se o
+        // arquivo PNG tem fundo OPACO (sem transparência), o branco
+        // continua visível por cima de qualquer cor de fundo que a
+        // gente colocar — é preciso "furar" esses pixels mesmo.
+        // Funciona com qualquer logo.png (transparente ou não); se a
+        // imagem já for transparente, o resultado não muda em nada.
+        (function () {
+          var LIMIAR_BRANCO = 235; // 0-255: quão "branco" precisa ser pra virar transparente
+          var img = document.getElementById('js-logo');
+          if (!img) return;
+
+          function removerFundoBranco() {
+            // IMPORTANTE: trocar o src dispara outro evento load. Sem esta
+            // trava, alguns navegadores entram em um ciclo infinito e a aba
+            // permanece com o ícone de carregamento ativo.
+            if (img.dataset.bgProcessado === '1' || !img.naturalWidth || !img.naturalHeight) return;
+            img.dataset.bgProcessado = '1';
+
+            try {
+              var canvas = document.createElement('canvas');
+              canvas.width = img.naturalWidth;
+              canvas.height = img.naturalHeight;
+              var ctx = canvas.getContext('2d', { willReadFrequently: true });
+              ctx.drawImage(img, 0, 0);
+              var dados = ctx.getImageData(0, 0, canvas.width, canvas.height);
+              var px = dados.data;
+              for (var i = 0; i < px.length; i += 4) {
+                if (px[i] >= LIMIAR_BRANCO && px[i + 1] >= LIMIAR_BRANCO && px[i + 2] >= LIMIAR_BRANCO) {
+                  px[i + 3] = 0; // alpha = 0 → totalmente transparente
+                }
+              }
+              ctx.putImageData(dados, 0, 0);
+              img.src = canvas.toDataURL('image/png');
+            } catch (e) {
+              // Falha (ex.: imagem de outra origem sem CORS liberado) —
+              // mantém a logo original em vez de travar a página.
+              img.dataset.bgProcessado = 'erro';
+              console.warn('[Logo] Não foi possível remover o fundo automaticamente:', e);
+            }
+          }
+
+          if (img.complete && img.naturalWidth > 0) removerFundoBranco();
+          else img.addEventListener('load', removerFundoBranco, { once: true });
+        })();
+      </script>
+
+      <!-- Badge institucional -->
+      <div class="header-badge">
+        <i class="fa-solid fa-circle-nodes"></i>
+        <span>Coordenação de DevOps · Confederação Sicredi</span>
+      </div>
+
+      <!-- Título editável -->
+      <h1
+        class="header-title"
+        id="js-titulo"
+        data-field="titulo"
+        contenteditable="false"
+        spellcheck="false"
+        aria-label="Título principal"
+      >Principais Entregas da Semana</h1>
+
+      <!-- Subtítulo editável -->
+      <p
+        class="header-subtitle"
+        id="js-subtitulo"
+        data-field="subtitulo"
+        contenteditable="false"
+        spellcheck="false"
+      >Time Core &amp; Crédito</p>
+
+      <!-- Descrição editável -->
+      <p
+        class="header-desc"
+        id="js-descricao"
+        data-field="descricao"
+        contenteditable="false"
+        spellcheck="false"
+      >Resultados, melhorias operacionais, estabilidade e evolução contínua dos ambientes.</p>
+
+      <!-- DATA DA DAILY — seletor de daily histórica + date picker para criar/ir a qualquer data -->
+      <div class="header-date-wrap" id="js-date-wrap">
+        <div class="header-date-box">
+          <button
+            type="button"
+            class="date-picker-btn"
+            id="js-date-picker-btn"
+            aria-label="Escolher data (criar ou abrir daily de qualquer dia)"
+            title="Escolher data — criar ou abrir a daily de qualquer dia"
+          ><i class="fa-solid fa-calendar-days"></i></button>
+          <span class="date-label">Daily DevOps</span>
+          <span class="date-sep">·</span>
+          <select
+            class="date-select"
+            id="js-date-select"
+            aria-label="Selecionar daily por data"
+            title="Selecione uma data para consultar dailies anteriores"
+          >
+            <option value="">Carregando...</option>
+          </select>
+          <!-- input date nativo: invisível, acionado pelo botão de calendário -->
+          <input type="date" id="js-date-picker" class="date-picker-input" aria-hidden="true" tabindex="-1" />
+        </div>
+      </div>
+
+      <!-- DESTAQUES PRINCIPAIS (1 a 4, escolhidos na biblioteca de destaques) -->
+      <div class="header-destaque" id="js-destaque"></div>
+
+      <!-- Edição dos destaques principais — visível apenas em modo edição -->
+      <div class="destaque-editor edit-only hidden" id="js-destaque-editor">
+        <div class="destaque-chips" id="js-destaque-chips"></div>
+        <div class="destaque-add-wrap" id="js-destaque-add-wrap">
+          <select class="destaque-add-select" id="js-destaque-add-select" aria-label="Adicionar destaque principal">
+            <option value="">+ Adicionar destaque...</option>
+          </select>
+        </div>
+        <p class="destaque-max-hint hidden" id="js-destaque-max-hint">
+          <i class="fa-solid fa-circle-info"></i> Máximo de 4 destaques por daily atingido — remova um para adicionar outro.
+        </p>
+      </div>
+
+      <!-- Avatares -->
+      <div class="header-avatars" id="js-avatares" role="list" aria-label="Membros do time"></div>
+
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════
+       TOOLBAR
+  ═══════════════════════════════════════════ -->
+  <div class="toolbar" role="toolbar" aria-label="Ferramentas" id="js-toolbar">
+    <div class="toolbar-left">
+      <div class="search-wrapper">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input
+          type="search"
+          id="js-search"
+          class="search-input"
+          placeholder="Pesquisar analista..."
+          aria-label="Pesquisar analista"
+          autocomplete="off"
+        />
+      </div>
+      <select id="js-sort" class="sort-select" aria-label="Ordenar por">
+        <option value="default">Ordenar por...</option>
+        <option value="nome">Nome (A–Z)</option>
+        <option value="cargo">Cargo</option>
+        <option value="entregas">Qtd. Entregas</option>
+      </select>
+    </div>
+
+    <div class="toolbar-right">
+      <button type="button" id="js-toggle-theme" class="btn btn--ghost theme-switcher" title="Alternar tema" aria-label="Alternar tema">
+        <i class="fa-solid fa-moon" id="js-theme-icon" aria-hidden="true"></i>
+        <span class="btn-label" id="js-theme-label">Escuro</span>
+      </button>
+
+      <button type="button" id="js-toggle-edit" class="btn btn--edit" title="Ativar/desativar modo edição">
+        <i class="fa-solid fa-pen-to-square"></i>
+        <span class="btn-label">Editar</span>
+      </button>
+
+      <button type="button" id="js-add-analista" class="btn btn--success edit-only hidden" title="Adicionar analista">
+        <i class="fa-solid fa-user-plus"></i>
+        <span class="btn-label">Add</span>
+      </button>
+
+      <button type="button" id="js-save" class="btn btn--primary edit-only hidden" title="Salvar alterações (Ctrl+S)">
+        <i class="fa-solid fa-floppy-disk"></i>
+        <span class="btn-label">Salvar</span>
+      </button>
+
+      <button type="button" id="js-delete-daily" class="btn btn--danger edit-only hidden" title="Excluir esta daily do histórico">
+        <i class="fa-solid fa-trash-can"></i>
+        <span class="btn-label">Excluir</span>
+      </button>
+
+      <div class="toolbar-divider"></div>
+
+      <button type="button" id="js-export-img" class="btn btn--ghost" title="Gerar imagem PNG da página inteira">
+        <i class="fa-solid fa-image"></i>
+        <span class="btn-label">Imagem</span>
+      </button>
+
+      <button type="button" id="js-share" class="btn btn--ghost" title="Gerar link compartilhável">
+        <i class="fa-solid fa-share-nodes"></i>
+        <span class="btn-label">Link</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       MAIN CONTENT + HISTÓRICO LATERAL
+  ═══════════════════════════════════════════ -->
+  <div class="content-layout" id="js-content-layout">
+    <main class="main-content" id="js-main">
+      <div class="cards-grid" id="js-grid" role="list" aria-label="Cards dos analistas"></div>
+      <div class="empty-state hidden" id="js-empty" role="status" aria-live="polite">
+        <i class="fa-solid fa-circle-xmark"></i>
+        <p>Nenhum analista encontrado.</p>
+      </div>
+    </main>
+
+    <!-- HISTÓRICO/AGENDA DE DAILIES (apenas datas com daily salva) -->
+    <aside class="historico-sidebar" id="js-historico" aria-label="Histórico de dailies">
+      <div class="historico-header">
+        <p class="historico-title"><i class="fa-solid fa-calendar-check"></i> Agenda de Dailies</p>
+        <button type="button" class="historico-toggle" id="js-historico-toggle" aria-label="Recolher/expandir histórico" aria-expanded="true">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+      <ul class="historico-list" id="js-historico-list"></ul>
+    </aside>
+  </div>
+
+  <!-- Botão flutuante (mobile) para abrir a agenda de dailies -->
+  <button type="button" class="historico-fab" id="js-historico-fab" aria-label="Abrir agenda de dailies" title="Agenda de Dailies">
+    <i class="fa-solid fa-calendar-check"></i>
+  </button>
+  <!-- Backdrop do painel de histórico no mobile (fecha ao tocar) -->
+  <div class="historico-backdrop" id="js-historico-backdrop" aria-hidden="true"></div>
+
+  <!-- ═══════════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════════ -->
+  <footer class="site-footer" id="site-footer">
+    <div class="footer-inner">
+      <p class="footer-title">
+        <i class="fa-solid fa-star"></i>
+        Destaques da Semana
+      </p>
+      <ul class="footer-list" id="js-footer-list"></ul>
+      <button type="button" id="js-add-destaque" class="btn btn--ghost edit-only hidden" style="margin-top:14px;">
+        <i class="fa-solid fa-plus"></i>
+        <span class="btn-label">Adicionar destaque</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- TOAST -->
+  <div class="toast" id="js-toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
+
+  <!-- LOADING -->
+  <div class="loading-overlay" id="js-loading" aria-label="Carregando dados...">
+    <div class="loading-spinner">
+      <div class="loading-spinner-inner"></div>
+    </div>
+    <p class="loading-text">Inicializando<span class="loading-blink">_</span></p>
+  </div>
+
+  <!-- MODAL CONFIRMAÇÃO -->
+  <div class="modal-overlay hidden" id="js-modal" role="dialog" aria-modal="true" aria-labelledby="js-modal-msg">
+    <div class="modal-box">
+      <div class="modal-accent-bar"></div>
+      <p class="modal-msg" id="js-modal-msg"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn--ghost" id="js-modal-cancel">Cancelar</button>
+        <button type="button" class="btn btn--danger" id="js-modal-confirm">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE BLOQUEIO DE EDIÇÃO -->
+  <div class="modal-overlay hidden" id="js-lock-modal" role="alertdialog" aria-modal="true" aria-labelledby="js-lock-modal-title" aria-describedby="js-lock-modal-text">
+    <div class="modal-box lock-modal-box">
+      <div class="modal-accent-bar"></div>
+      <div class="lock-modal-content">
+        <div class="lock-modal-icon" aria-hidden="true"><i class="fa-solid fa-user-lock"></i></div>
+        <p class="lock-modal-title" id="js-lock-modal-title">Edição temporariamente indisponível</p>
+        <p class="lock-modal-text" id="js-lock-modal-text">
+          Alguém já está editando a aplicação. Aguarde o salvamento ou o encerramento da edição e tente novamente em instantes.
+        </p>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn--primary" id="js-lock-modal-close">Entendi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL SELETOR DE ÍCONE (badge/indicador dos analistas) -->
+  <div class="modal-overlay hidden" id="js-icon-picker" role="dialog" aria-modal="true" aria-labelledby="js-icon-picker-title">
+    <div class="modal-box icon-picker-box">
+      <div class="modal-accent-bar"></div>
+      <p class="modal-msg icon-picker-title" id="js-icon-picker-title">
+        <i class="fa-solid fa-icons"></i> Escolha o ícone do indicador
+      </p>
+      <div class="icon-picker-grid" id="js-icon-picker-grid"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn--ghost" id="js-icon-picker-cancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase JS client (UMD — expõe window.supabase) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <!-- Configuração do projeto Supabase (edite js/config.js com suas credenciais) -->
+  <script src="js/config.js"></script>
+  <!-- Biblioteca de destaques pré-definidos (sem IA — 100% local) -->
+  <script src="js/destaques.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
